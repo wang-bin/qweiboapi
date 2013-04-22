@@ -1,0 +1,32 @@
+#include "winver.h"
+#include "../src/QWeiboAPI/version.h" //#include "QWeiboAPI/version.h" will fail
+//IDI_ICON1               ICON    DISCARDABLE     "QWeiboAPI.ico"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION QWEIBOAPI_MAJOR,QWEIBOAPI_MINOR,QWEIBOAPI_PATCH,0
+ PRODUCTVERSION QWEIBOAPI_MAJOR,QWEIBOAPI_MINOR,QWEIBOAPI_PATCH,0
+ FILEFLAGS 0x0L
+ FILEFLAGSMASK 0x3fL
+ FILEOS 0x00040004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004b0"
+        BEGIN
+            VALUE "CompanyName", "Shanghai University, wbsecg1@gmail.com"
+            VALUE "FileDescription", "Qt wrapper for sina weibo api. https://github.com/wang-bin/qweiboapi"
+            VALUE "FileVersion", QWEIBOAPI_VERSION_STR ".0"
+            VALUE "LegalCopyright", "Copyright (C) 2012-2013 WangBin"
+            VALUE "InternalName", "QWeiboAPI"
+            VALUE "OriginalFilename", "QWeiboAPI.dll"
+            VALUE "ProductName", "QWeiboAPI"
+            VALUE "ProductVersion", QWEIBOAPI_VERSION_STR ".0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END
