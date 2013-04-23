@@ -88,6 +88,7 @@ void Weibo::login()
 	url.addQueryItem("password", mPasswd);
 #endif //QT_VERSION_CHECK(5, 0, 0)
 	connect(mPut, SIGNAL(ok(QByteArray)), SLOT(parseOAuth2ReplyData(QByteArray)));
+    connect(mPut, SIGNAL(fail(QString)), SIGNAL(loginFail()));
 	mPut->setUrl(url);
 	mPut->post();
 }
@@ -125,6 +126,7 @@ void Weibo::parseOAuth2ReplyData(const QByteArray &data)
     qDebug("token=%s, uid=%s", mAccessToken.constData(), mUid.constData());
 
 	disconnect(this, SLOT(parseOAuth2ReplyData(QByteArray)));
+    disconnect(this, SIGNAL(loginFail()));
 	emit loginOk();
 }
 
