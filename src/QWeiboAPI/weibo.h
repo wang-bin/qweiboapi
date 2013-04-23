@@ -20,11 +20,12 @@
 #ifndef QWEIBOAPI_WEIBO_H
 #define QWEIBOAPI_WEIBO_H
 
+#include "QWeiboAPI/qweiboapi_global.h"
 #include <QObject>
 
 class QPut;
 namespace QWeiboAPI {
-class Weibo : public QObject
+class Q_EXPORT Weibo : public QObject
 {
     Q_OBJECT
 public:
