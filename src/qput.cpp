@@ -106,6 +106,15 @@ void QPut::post()
     connect(reply, SIGNAL(finished()), this, SLOT(DoFinished()));
 }
 
+void QPut::get()
+{
+    QNetworkRequest request(mUrl);
+    qDebug("GET %s", mUrl.toString().toLocal8Bit().constData());
+    QNetworkReply *reply = mNetwork->get(request);
+    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(DoReplyError()));
+    connect(reply, SIGNAL(finished()), this, SLOT(DoFinished()));
+}
+
 void QPut::setData(const QByteArray &pData)
 {
     mData = pData;
@@ -119,6 +128,8 @@ void QPut::setUrl(const QUrl &pUrl)
 void QPut::DoReplyError()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    //disconnect(reply, SIGNAL(finished()), this, SLOT(DoFinished()));
+    //disconnect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(DoReplyError()));
     QString err = reply->errorString();
     emit fail(err);
     qWarning("Network error: %s", qPrintable(err));
@@ -134,13 +145,16 @@ void QPut::abort()
 void QPut::DoFinished()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    //disconnect(reply, SIGNAL(finished()), this, SLOT(DoFinished()));
+    //disconnect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(DoReplyError()));
     QNetworkReply::NetworkError error = reply->error();
     QByteArray res = reply->readAll();
     mSuccess = (error == QNetworkReply::NoError);
+    qDebug() << "Ok: " << mSuccess;// << "+++reply: " << QString::fromUtf8(res.constData());
     if (mSuccess) {
         emit ok(res);
     } else {
-        emit fail(reply->errorString());
+        //emit fail(reply->errorString()); //emit in DoReplyError()
     }
 
     QNetworkRequest r = reply->request();

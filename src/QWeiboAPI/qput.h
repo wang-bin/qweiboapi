@@ -38,6 +38,7 @@ public:
     void addDataPart(const QByteArray& mine, const QByteArray& name, const QByteArray& data, const QString& fileName = QString());
     void upload();
     void post();
+    void get();
 
     void setData(const QByteArray& pData);
     void setUrl(const QUrl& pUrl);
