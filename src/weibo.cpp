@@ -26,15 +26,11 @@
 #include <QtCore/QUrlQuery>
 #endif //QT_VERSION_CHECK(5, 0, 0)
 #include <QtGui/QImage>
+#include <QtDebug>
 #include "qput.h"
+#include "QWeiboAPI/requestparameter.h"
 
 namespace QWeiboAPI {
-
-const QString kOAuthUrl = "https://api.weibo.com/oauth2/access_token";
-const QString kApiHost = "https://api.weibo.com/2/";
-//appkey, appsecret are weico for iOS
-static QString sAppKey = "82966982";
-static QString sAppSecret = "72d4545a28a46a6f329c4f2b1e949e6a";
 
 Weibo::Weibo(QObject *parent)
     :QObject(parent)
@@ -42,6 +38,18 @@ Weibo::Weibo(QObject *parent)
     mPut = new QPut(this);
     //connect(mPut, SIGNAL(ok(QByteArray)), this, SIGNAL(ok()));
     connect(mPut, SIGNAL(fail(QString)), this, SIGNAL(error(QString)));
+    connect(mPut, SIGNAL(fail(QString)), this, SLOT(dumpError(QString)));
+    connect(mPut, SIGNAL(ok(QByteArray)), this, SIGNAL(ok(QByteArray)));
+    connect(mPut, SIGNAL(ok(QByteArray)), this, SLOT(dumpOk(QByteArray)));
+    connect(this, SIGNAL(loginOk()), SLOT(processNextRequest()), Qt::DirectConnection);
+}
+
+Weibo::~Weibo()
+{
+    if (!mRequests.isEmpty()) {
+        qDeleteAll(mRequests);
+        mRequests.clear();
+    }
 }
 
 void Weibo::setUSer(const QString &user)
@@ -62,6 +70,18 @@ void Weibo::setAccessToken(const QByteArray &token)
 QByteArray Weibo::accessToken() const
 {
     return mAccessToken;
+}
+
+void Weibo::createRequest(Request *request)
+{
+    mRequests.append(request);
+    //TODO: better way to check login(from error code)
+    if (mAccessToken.isEmpty()) {
+        qDebug("Not login.");
+        login();
+    } else {
+        processNextRequest();
+    }
 }
 
 void Weibo::login()
@@ -90,6 +110,7 @@ void Weibo::login()
     connect(mPut, SIGNAL(ok(QByteArray)), SLOT(parseOAuth2ReplyData(QByteArray)));
     connect(mPut, SIGNAL(fail(QString)), SIGNAL(loginFail()));
     mPut->setUrl(url);
+    qDebug("begin login...");
     mPut->post();
 }
 
@@ -111,8 +132,30 @@ void Weibo::updateStatusWithPicture(const QString &status, const QString &fileNa
     sendStatusWithPicture();
 }
 
+void Weibo::processNextRequest()
+{
+    if (mRequests.isEmpty())
+        return;
+    Request *request = mRequests.takeFirst();
+    (*request)
+            ("access_token", mAccessToken)
+            ("uid", mUid)
+            ;
+    mPut->reset();
+    mPut->setUrl(request->url());
+    if (request->type() == Request::Get) {
+        mPut->get();
+    } else if (request->type() == Request::Post){
+        mPut->post();
+    }
+}
+
 void Weibo::parseOAuth2ReplyData(const QByteArray &data)
 {
+    static bool in = false;
+    if (in)
+        return;
+    in = true;
     //{"access_token":"2.00xxxxD","remind_in":"4652955","expires_in":4652955,"uid":"12344"}
     QByteArray d(data);
     int i = d.indexOf("access_token");
@@ -163,6 +206,16 @@ void Weibo::sendStatusWithPicture()
     mPut->addTextPart("status", QUrl::toPercentEncoding(mStatus));
     mPut->addDataPart("image/jpg", "pic", data, path);
     mPut->upload();
+}
+
+void Weibo::dumpError(const QString &error)
+{
+    qDebug() << ">>>>>>>" << __FUNCTION__ << error  << "<<<<<<<";
+}
+
+void Weibo::dumpOk(const QByteArray &data)
+{
+    qDebug() << ">>>>>>>" << __FUNCTION__ << QString::fromUtf8(data.constData()) << "<<<<<<<";
 }
 
 } //namespace QWeiboAPI
