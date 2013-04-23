@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 CONFIG += ordered
-SUBDIRS = libqweiboapi #examples tests
+SUBDIRS = libqweiboapi examples #tests
 
 libqweiboapi.file = src/libQWeiboAPI.pro
 examples.depends += libqweiboapi
