@@ -78,11 +78,13 @@ QMAKE_LFLAGS_RPATH += #will append to rpath dir
 !contains(CONFIG, $$lower($$NAME)-buildlib) {
 	#The following may not need to change
 	CONFIG *= link_prl
-	LIBS *= -L$$PROJECT_LIBDIR -l$$qtLibName($$NAME)
-	isEqual(STATICLINK, 1) {
+        LIBS *= -L$$PROJECT_LIBDIR
+        isEqual(STATICLINK, 1) {
 		PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtStaticLib($$NAME)
+                LIBS *= -l$$qtLibName($$NAME)
 	} else {
-		win32 {
+                LIBS *= -l$$qtLibName($$NAME, $$LIB_VERSION)
+                win32 {
 			PRE_TARGETDEPS *= $$PROJECT_LIBDIR/$$qtSharedLib($$NAME, $$LIB_VERSION)
 		} else {
 			PRE_TARGETDEPS *= $$PROJECT_LIBDIR/$$qtSharedLib($$NAME)
