@@ -37,12 +37,14 @@ TRANSLATIONS = $${PROJECTROOT}/i18n/QWeiboAPI_zh_CN.ts
 SOURCES *= \
     qput.cpp \
     qweiboapi_global.cpp \
+    requestparameter.cpp \
     weibo.cpp
 
 SDK_HEADERS *= \
     QWeiboAPI/dptr.h \
     QWeiboAPI/qweiboapi_global.h \
     QWeiboAPI/weibo.h \
+    QWeiboAPI/requestparameter.h \
     QWeiboAPI/version.h
 
 
