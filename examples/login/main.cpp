@@ -1,4 +1,5 @@
 #include "QWeiboAPI/weibo.h"
+#include "QWeiboAPI/requestparameter.h"
 #include <QInputDialog>
 #include <QApplication>
 #include <QMessageBox>
@@ -14,7 +15,7 @@ int main(int argc, char** argv)
         passwd = app.arguments().at(2);
     } else {
         user = QInputDialog::getText(0, "QWeiboAPI Login", "User name");
-        passwd = QInputDialog::getText(0, "QWeiboAPI Login", "Password", QLineEdit::PasswordEchoOnEdit);
+        passwd = QInputDialog::getText(0, "QWeiboAPI Login", "Password", QLineEdit::Password);
     }
     if (user.isEmpty() || passwd.isEmpty()) {
         QMessageBox::critical(0, "QWeiboAPI Login", "User or password is empty");
@@ -31,8 +32,10 @@ int main(int argc, char** argv)
     QObject::connect(&weibo, SIGNAL(loginFail()), &failbox, SLOT(exec()));
     weibo.setUSer(user);
     weibo.setPassword(passwd);
-    weibo.login();
-
+    //weibo.login();
+    Request *request = new PublicTimelineRequest();
+    request->prepare();
+    weibo.createRequest(request);
 
     return app.exec();
 }
