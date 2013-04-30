@@ -1,5 +1,6 @@
 if [ "$0" = "$BASH_SOURCE" -o -z "$BASH_SOURCE" ]; #??
 then
+	SCRIPT_FILE=$0
 	SCRIPT_DIR=${0%/*}
 else
 	SCRIPT_DIR=.
@@ -11,7 +12,10 @@ echo $SCRIPT_DIR
 
 #TODO:
 #some api get empty data(status/home etc.)
-#<a title="Scope"
+#parse Chinese api document(how to get default value?)
+#Makefile support(multiple jobs)
+#functional style
+#./web2api.sh && make
 
 API_HOST="https://api.weibo.com" #json request url
 API_URL_BASE="http://open.weibo.com"
@@ -53,7 +57,7 @@ parse_api_dom() {
 	#finish 1 parameter
 		$PARSE_TR  && { 
 			echo "$BEGIN_PARAMETER${KEY}$PARAMETER_VALUE_SEP $VALUE$END_PARAMETER  $BEGIN_COMMENT$COMMENT"
-			echo "$BEGIN_PARAMETER${KEY}$PARAMETER_VALUE_SEP $VALUE$END_PARAMETER  $BEGIN_COMMENT$COMMENT" >> $OUT_FILE
+			#echo "$BEGIN_PARAMETER${KEY}$PARAMETER_VALUE_SEP $VALUE$END_PARAMETER  $BEGIN_COMMENT$COMMENT" >> $OUT_FILE
 			KEY=
 			VALUE=
 			STRING_VALUE=false
@@ -73,24 +77,50 @@ parse_api_dom() {
 }
 
 
-parse_api_page() {
+api_url_2_name() {
 	[ $# -lt 1 ] && cecho green "$0 weibo_api_url" && return 1
 	local API_URL=$1
 	local api=${API_URL#*$API_URL_BASE}
+	api=${api##*wiki/}
 	api=${api##*[0-9]/}
 	api=${api%/en} #English version api page
 	api=${api//\//_}
+	echo "$api"
+}
+
+parse_api_page() {
+	[ $# -lt 1 ] && cecho green "$0 weibo_api_url [dom_parser=parse_api_dom]" && return 1
+	local API_URL=$1
+	local dom_parser=parse_api_dom
+	local api="`api_url_2_name $API_URL`"
 	begin_api $api
 	API_TABLE=true
-	echo "parsing api url: $API_URL"
+	#echo "parsing api url: $API_URL"
+	[ $# -gt 1 ] && dom_parser=$2
 	curl $API_URL | while read_dom; do
-		$API_TABLE && parse_api_dom || break #not break, but parse_api_error_dom
+		$API_TABLE && $dom_parser || break #not break, but parse_api_error_dom
 	done
 	end_api
 }
 
+API_MK=api.mk
+API_RULE_MK=api_rule.mk
+save_api_in_Makefile() {
+	[ $# -eq 0 ] && cecho green "$0 weibo_api_url" && return 1
+	local url="$1"
+	local api="`api_url_2_name $url`"
+	[ ! -f $API_MK ] && echo -n "API_ALL =" >$API_MK
+	echo -n " $api" >>$API_MK
+	cat >>$API_RULE_MK<<EOF
+${api}:
+	$SCRIPT_FILE "$url" > api/${api}.h
+
+EOF
+}
 
 parse_api_list_page_dom() {
+	local api_url_handler=parse_api_page #the handler will be called when an api name is parsed. default action is parse the api page
+	[ $# -gt 0 ] && api_url_handler=$1
 	if [ "$TAG_NAME" = "td" ]; then #api name, description or category
 		CONTENT=`echo "$CONTENT"` #remove eol \n \r
 		[ -n "$API_URL_PATH" ] && API_DESC="$CONTENT"
@@ -100,14 +130,14 @@ parse_api_list_page_dom() {
 			eval local $ATTRIBUTES
 			PARSE_A=true
 			API_URL_PATH="$href"
-			echo "$API_URL_PATH"
+			echo "/* $API_URL_PATH */"
 		}
 	elif [ "$TAG_NAME" = "tr" ]; then 
 		PARSE_API_TR=true	
 	elif [ "$TAG_NAME" = "/tr" ]; then #finish 1 api
 		$PARSE_A && {
-			echo "$BEGIN_COMMENT $API_DESC" >> $OUT_FILE
-			parse_api_page "$API_URL_BASE$API_URL_PATH/en"
+			echo "$BEGIN_COMMENT $API_DESC"
+			$api_url_handler "$API_URL_BASE$API_URL_PATH/en"
 		}
 		PARSE_A=false
 		PARSE_API_TR=false
@@ -117,19 +147,37 @@ parse_api_list_page_dom() {
 
 #<table>'s ist <tr> is the category information, 2nd <tr> has 2 or 3 <td>. the <td> with api name attribute title="2/some/api", the next <td> is discription.
 parse_api_list_page() {
-	local api_list_url=$API_LIST_URL
-	[ $# -gt 0 ] && api_list_url=$1
-	curl $api_list_url |while read_dom; do
-		parse_api_list_page_dom
+	local API_LIST_URL=
+	local api_url_handler=
+	if [ $# -gt 2 ]; then
+		api_url_handler=$3
+		dom_parser=$2
+		API_LIST_URL=$1
+	elif [ $# -gt 1 ]; then
+		dom_parser=$2
+		API_LIST_URL=$1
+	elif [ $# -gt 0 ]; then
+		dom_parser=parse_api_list_page_dom
+		API_LIST_URL=$1
+	else
+		cecho green "$0 weibo_api_list_url [dom_parser=parse_api_list_page_dom] [api_url_handler (e.g. save_api_in_Makefile)]" && return 1
+	fi
+	curl $API_LIST_URL |while read_dom; do
+		$dom_parser $api_url_handler
 	done
 }
 
 echo >$OUT_FILE
 
 if [ $# -gt 0 ]; then
-	parse_api_page $1
+	if [ "$1" = "-makefile" ]; then
+		mkdir -p api
+		rm $API_MK $API_RULE_MK
+		parse_api_list_page $API_LIST_URL parse_api_list_page_dom save_api_in_Makefile
+		cat $API_MK $API_RULE_MK Makefile.in >Makefile
+	else
+		parse_api_page $1
+	fi
 else
-	parse_api_list_page
+	parse_api_list_page $API_LIST_URL
 fi
-
-

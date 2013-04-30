@@ -3,7 +3,7 @@ OUT_FILE=weiboapi.h  #cat >> &1 is wrong, why?
 begin_api() {
 	[ $# -eq 0 ] && return 1
 	API=$1
-	cat >> $OUT_FILE <<EOF
+	cat <<EOF
 class Q_EXPORT ${API} : public Request
 {
 public:
@@ -15,7 +15,7 @@ EOF
 }
 
 end_api() {
-	cat >> $OUT_FILE <<EOF
+	cat <<EOF
         ;
     }
 };

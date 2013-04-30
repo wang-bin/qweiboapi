@@ -1,0 +1,8 @@
+#-include(api.mk)
+#-include(api_rule.mk)
+
+all: $(API_ALL)
+
+
+clean:
+	rm -rf api *.mk
