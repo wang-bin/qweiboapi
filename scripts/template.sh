@@ -23,7 +23,8 @@ end_api() {
 EOF
 }
 
-BEGIN_PARAMETER="        ("
+BEGIN_PARAMETER="        (\""
 END_PARAMETER=\)
+PARAMETER_VALUE_SEP="\","
 BEGIN_COMMENT="//"
 
