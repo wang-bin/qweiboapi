@@ -1,11 +1,13 @@
+OUT_FILE=weiboapi.h  #cat >> &1 is wrong, why?
+
 begin_api() {
 	[ $# -eq 0 ] && return 1
 	API=$1
-	cat <<EOF
-class Q_EXPORT ${API}Request : public Request
+	cat >> $OUT_FILE <<EOF
+class Q_EXPORT ${API} : public Request
 {
 public:
-    ${API}Request();
+    ${API}();
 protected:
     void initParameters() {
         (*this)
@@ -13,7 +15,7 @@ EOF
 }
 
 end_api() {
-	cat <<EOF
+	cat >> $OUT_FILE <<EOF
         ;
     }
 };

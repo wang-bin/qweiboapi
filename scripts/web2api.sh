@@ -1,4 +1,4 @@
-if [ "$0" = "$BASH_SOURCE" -o -z "$BASH_SOURCE" ];
+if [ "$0" = "$BASH_SOURCE" -o -z "$BASH_SOURCE" ]; #??
 then
 	SCRIPT_DIR=${0%/*}
 else
@@ -9,8 +9,9 @@ echo $SCRIPT_DIR
 . ${SCRIPT_DIR}/functions.sh
 
 
-API_LIST_URL="http://open.weibo.com/wiki/%E5%BE%AE%E5%8D%9AAPI"
-API_HOST="https://api.weibo.com"
+API_HOST="https://api.weibo.com" #json request url
+API_URL_BASE="http://open.weibo.com/wiki"
+API_LIST_URL="$API_URL_BASE/%E5%BE%AE%E5%8D%9AAPI"
 read_dom () {
     local IFS=\>
     read -d \< ENTITY CONTENT
@@ -49,7 +50,7 @@ parse_api_dom() {
 	#finish 1 parameter
 		$PARSE_TR  && { 
 			echo "$BEGIN_PARAMETER$KEY, $VALUE$END_PARAMETER  $BEGIN_COMMENT$COMMENT"
-			echo "$BEGIN_PARAMETER$KEY, $VALUE$END_PARAMETER  $BEGIN_COMMENT$COMMENT" >> log.txt
+			echo "$BEGIN_PARAMETER$KEY, $VALUE$END_PARAMETER  $BEGIN_COMMENT$COMMENT" >> $OUT_FILE
 			KEY=
 			VALUE=
 			COL=0 #not necessary
@@ -72,7 +73,11 @@ parse_api_dom() {
 parse_api_page() {
 	[ $# -lt 1 ] && cecho green "$0 weibo_api_url" && return 1
 	local API_URL=$1
-	begin_api Test
+	local api=${API_URL#*$API_URL_BASE}
+	api=${api##*[0-9]/}
+	api=${api%/en}
+	api=${api//\//_}
+	begin_api $api
 	API_TABLE=true
 	echo "parsing api url: $API_URL"
 	curl $API_URL | while read_dom; do
@@ -83,28 +88,49 @@ parse_api_page() {
 
 
 parse_api_list_page_dom() {
-	
-	if [ "$TAG_NAME" = "td" -a "$PARSE_API_TR" = "true" ]; then #api name or description(has attribute 'title') or category
-		eval local $ATTRIBUTES
-		if [ -z "$title" ]; then
-			PARSE_API_TR=false
-		else
-			PARSE_API_TR=true
-			API_URL_PATH="$title"
-			CONTENT=`echo "$CONTENT"` #remove eol \n \r
-			[ $API_URL_PATH ] && API_DESC=$CONTENT
-		fi
-	elif [ "$TAG_NAME" = "/tr" ]; then #finish 1 api
-		[ $PARSE_API_TR ] && {
-			$BEGIN_COMMENT $API_DESC
-			parse_api_page $API_HOST/$API_URL_PATH
+	if [ "$TAG_NAME" = "td" ]; then #api name or description(has attribute 'title') or category
+		PARSE_A=true
+		CONTENT=`echo "$CONTENT"` #remove eol \n \r
+		[ -n "$API_URL_PATH" ] && API_DESC="$CONTENT"
+	elif [ "$TAG_NAME" = "a" ]; then
+		$PARSE_API_TR && {
+			eval local $ATTRIBUTES
+			if [ -z "$title" ]; then
+				PARSE_A=false
+			else
+				PARSE_A=true
+				API_URL_PATH="$title"
+				echo "$API_URL_PATH"		
+			fi
 		}
+	elif [ "$TAG_NAME" = "tr" ]; then 
+		PARSE_API_TR=true	
+	elif [ "$TAG_NAME" = "/tr" ]; then #finish 1 api
+		$PARSE_A && {
+			echo "$BEGIN_COMMENT $API_DESC"
+			parse_api_page $API_URL_BASE/$API_URL_PATH/en
+		}
+		PARSE_A=false
+		PARSE_API_TR=false
+		API_URL_PATH=
 	fi
 }
 
 #<table>'s ist <tr> is the category information, 2nd <tr> has 2 or 3 <td>. the <td> with api name attribute title="2/some/api", the next <td> is discription.
 parse_api_list_page() {
-	while read_dom; do
+	local api_list_url=$API_LIST_URL
+	[ $# -gt 0 ] && api_list_url=$1
+	curl $api_list_url |while read_dom; do
 		parse_api_list_page_dom
 	done
 }
+
+echo >$OUT_FILE
+
+if [ $# -gt 0 ]; then
+	parse_api_page $1
+else
+	parse_api_list_page
+fi
+
+
