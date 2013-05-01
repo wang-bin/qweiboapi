@@ -56,12 +56,13 @@ QUrl Request::url() const
         QUrlQuery urlqurey;
 #endif //QT_VERSION_CHECK(5, 0, 0)
         for (; it != mParameters.constEnd(); ++it) {
-            if (it.value().toString().isEmpty())
+            QString value = it.value().toString();
+            if (value.isEmpty())
                 continue;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-            urlqurey.addQueryItem(it.key(), it.value().toString());
+            urlqurey.addQueryItem(it.key(), value);
 #else
-            url.addQueryItem(it.key(), it.value().toString());
+            url.addQueryItem(it.key(), value);
 #endif //QT_VERSION_CHECK(5, 0, 0)
         }
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)

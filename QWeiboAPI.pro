@@ -6,8 +6,8 @@ libqweiboapi.file = src/libQWeiboAPI.pro
 examples.depends += libqweiboapi
 tests.depends += libqweiboapi
 
-OTHER_FILES += README.md
-
+OTHER_FILES += README.md \
+    scripts/*.sh
 
 EssentialDepends =
 OptionalDepends =
