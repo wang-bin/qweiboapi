@@ -17,6 +17,7 @@ fi
 #./web2api.sh && make
 # how to add the descriptions at the beginning of api?
 
+DOWNLOAD=curl
 API_HOST="https://api.weibo.com" #json request url
 API_URL_BASE="http://open.weibo.com"
 API_LIST_URL="$API_URL_BASE/wiki/%E5%BE%AE%E5%8D%9AAPI"
@@ -42,9 +43,9 @@ parse_api_dom() {
                 COMMENT="$CONTENT"
                 #\u9ED8\u8BA4\u4E3A\u3002
                 #VALUE=`echo "$COMMENT" |sed 's/.*默认为\(.*\)。.*/\1/'` #TODO: English page
-                #VALUE=`echo "$COMMENT" |sed 's/.*\x9E\xD8\x8B\xA4\x4E\x3A\(.*\)\x30\x02.*/\1/'` #TODO: English page
-                VALUE=${COMMENT##*Default is } #`echo "$COMMENT" |sed 's/.*Default is\(.*\)\..*/\1/'` # English page
-                [ "$VALUE" = "$COMMENT" ] && VALUE=${COMMENT##*default value is} #`echo "$COMMENT" |sed 's/.*default value is\(.*\)\..*/\1/'`
+                #VALUE=`echo "$COMMENT" |sed 's/.*\x9E\xD8\x8B\xA4\x4E\x3A\(.*\)\x30\x02.*/\1/'`
+                VALUE=${COMMENT##*Default is }
+                [ "$VALUE" = "$COMMENT" ] && VALUE=${COMMENT##*default value is}
                 [ "$VALUE" = "$COMMENT" ] && {
                     $STRING_VALUE && VALUE="\"\"" || VALUE=0
                 } || VALUE=${VALUE%%.*}
@@ -57,7 +58,6 @@ parse_api_dom() {
     #finish 1 parameter
         $PARSE_TR  && {
             echo "$BEGIN_PARAMETER${KEY}$PARAMETER_VALUE_SEP $VALUE$END_PARAMETER  $BEGIN_COMMENT$COMMENT"
-            #echo "$BEGIN_PARAMETER${KEY}$PARAMETER_VALUE_SEP $VALUE$END_PARAMETER  $BEGIN_COMMENT$COMMENT" >> $OUT_FILE
             KEY=
             VALUE=
             STRING_VALUE=false
@@ -79,8 +79,7 @@ parse_api_dom() {
 
 api_url_2_name() {
     [ $# -lt 1 ] && cecho green "$0 weibo_api_url" && return 1
-    local API_URL=$1
-    local api=${API_URL#*$API_URL_BASE}
+    local api=${1#*$API_URL_BASE}
     api=${api##*/[0-9]/}
     api=${api##*wiki/}
     api=${api%/en} #English version api page
@@ -89,16 +88,16 @@ api_url_2_name() {
 }
 
 parse_api_page() {
-    [ $# -lt 1 ] && cecho green "$0 weibo_api_url [dom_parser=parse_api_dom]" && return 1
+    [ $# -lt 1 ] && cecho green "$0 weibo_api_url [description] [dom_parser=parse_api_dom]" && return 1
     local API_URL=$1
     local dom_parser=parse_api_dom
     local api="`api_url_2_name $API_URL`"
     [ "$api" = "" -o "$api" = "en" ] && return 0 #why it happens?
+    [ $# -gt 1 ] && echo "$2"
     begin_api $api
     API_TABLE=true
-    #echo "parsing api url: $API_URL"
-    [ $# -gt 1 ] && dom_parser=$2
-    curl $API_URL | while read_dom; do
+    [ $# -gt 2 ] && dom_parser=$3
+    $DOWNLOAD $API_URL | while read_dom; do
         $API_TABLE && $dom_parser || break #not break, but parse_api_error_dom
     done
     end_api
@@ -110,7 +109,7 @@ save_api_in_Makefile() {
     [ $# -eq 0 ] && cecho green "$0 weibo_api_url" && return 1
     local url="$1"
 	local comment=
-	[ $# -gt 1 ] && comment="$2"
+	[ $# -gt 1 ] && comment="$2" && echo "$2"
     local api="`api_url_2_name $url`"
     [ "$api" = "" -o "$api" = "en" ] && return 0 #why it happens?
     [ ! -f $API_MK ] && echo -n "API_ALL =" >$API_MK
@@ -137,14 +136,14 @@ parse_api_list_page_dom() {
             PARSE_A=true
             eval local $ATTRIBUTES
             API_URL_PATH=${title// /_}
-            echo "/* $API_URL_PATH */"
+            #echo "/* $API_URL_PATH */"
         }
     elif [ "$TAG_NAME" = "tr" ]; then
         PARSE_API_TR=true
     elif [ "$TAG_NAME" = "/tr" ]; then #finish 1 api
         $PARSE_A && {
-            echo "$BEGIN_COMMENT $API_DESC"
-            $api_url_handler "$API_URL_BASE/wiki/$API_URL_PATH/en" "$BEGIN_COMMENT $API_URL_PATH: $API_DESC"
+            #echo "$BEGIN_COMMENT $API_DESC $END_COMMENT"
+            $api_url_handler "$API_URL_BASE/wiki/$API_URL_PATH/en" "$BEGIN_COMMENT $API_URL_PATH: $API_DESC $END_COMMENT"
         }
         PARSE_A=false
         PARSE_API_TR=false
@@ -173,12 +172,11 @@ parse_api_list_page() {
     else
         cecho green "$0 weibo_api_list_url [dom_parser=parse_api_list_page_dom] [api_url_handler (e.g. save_api_in_Makefile)]" && return 1
     fi
-    curl $API_LIST_URL |while read_dom; do
+    $DOWNLOAD $API_LIST_URL |while read_dom; do
         $dom_parser $api_url_handler
     done
 }
 
-#echo >$OUT_FILE
 
 if [ $# -gt 0 ]; then
     if [ "$1" = "-make" ]; then
@@ -193,3 +191,4 @@ if [ $# -gt 0 ]; then
 else
     parse_api_list_page $API_LIST_URL
 fi
+
