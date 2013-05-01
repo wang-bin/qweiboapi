@@ -109,6 +109,8 @@ API_RULE_MK=api_rule.mk
 save_api_in_Makefile() {
     [ $# -eq 0 ] && cecho green "$0 weibo_api_url" && return 1
     local url="$1"
+	local comment=
+	[ $# -gt 1 ] && comment="$2"
     local api="`api_url_2_name $url`"
     [ "$api" = "" -o "$api" = "en" ] && return 0 #why it happens?
     [ ! -f $API_MK ] && echo -n "API_ALL =" >$API_MK
@@ -116,7 +118,8 @@ save_api_in_Makefile() {
     cat >>$API_RULE_MK<<EOF
 ${api}: \$(OBJDIR)/${api}.h
 \$(OBJDIR)/${api}.h:
-	$SCRIPT_FILE "$url" > \$@
+	@echo "$comment" > \$@
+	$SCRIPT_FILE "$url" >> \$@
 
 EOF
 }
@@ -141,7 +144,7 @@ parse_api_list_page_dom() {
     elif [ "$TAG_NAME" = "/tr" ]; then #finish 1 api
         $PARSE_A && {
             echo "$BEGIN_COMMENT $API_DESC"
-            $api_url_handler "$API_URL_BASE/wiki/$API_URL_PATH/en"
+            $api_url_handler "$API_URL_BASE/wiki/$API_URL_PATH/en" "$BEGIN_COMMENT $API_URL_PATH: $API_DESC"
         }
         PARSE_A=false
         PARSE_API_TR=false
@@ -177,7 +180,6 @@ parse_api_list_page() {
 
 #echo >$OUT_FILE
 
-echo $#
 if [ $# -gt 0 ]; then
     if [ "$1" = "-make" ]; then
         rm -rf $API_MK $API_RULE_MK
