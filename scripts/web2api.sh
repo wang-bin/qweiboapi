@@ -16,6 +16,7 @@ echo $SCRIPT_DIR
 #Makefile support(multiple jobs)
 #functional style
 #./web2api.sh && make
+# <a title="xxx"> replace spaces in title to _?
 
 API_HOST="https://api.weibo.com" #json request url
 API_URL_BASE="http://open.weibo.com"
@@ -81,8 +82,8 @@ api_url_2_name() {
     [ $# -lt 1 ] && cecho green "$0 weibo_api_url" && return 1
     local API_URL=$1
     local api=${API_URL#*$API_URL_BASE}
+    api=${api##*/[0-9]/}
     api=${api##*wiki/}
-    api=${api##*[0-9]/}
     api=${api%/en} #English version api page
     api=${api//\//_}
     echo "$api"
@@ -93,6 +94,7 @@ parse_api_page() {
     local API_URL=$1
     local dom_parser=parse_api_dom
     local api="`api_url_2_name $API_URL`"
+    [ "$api" = "" -o "$api" = "en" ] && return 0 #why it happens?
     begin_api $api
     API_TABLE=true
     #echo "parsing api url: $API_URL"
@@ -109,6 +111,7 @@ save_api_in_Makefile() {
     [ $# -eq 0 ] && cecho green "$0 weibo_api_url" && return 1
     local url="$1"
     local api="`api_url_2_name $url`"
+    [ "$api" = "" -o "$api" = "en" ] && return 0 #why it happens?
     [ ! -f $API_MK ] && echo -n "API_ALL =" >$API_MK
     echo -n " $api" >>$API_MK
     cat >>$API_RULE_MK<<EOF
@@ -125,11 +128,12 @@ parse_api_list_page_dom() {
         CONTENT=`echo "$CONTENT"` #remove eol \n \r
         [ -n "$API_URL_PATH" ] && API_DESC="$CONTENT"
     elif [ "$TAG_NAME" = "a" ]; then
-        # <a href="api_path" title="..."></a>, <a href="..." title="高级接口申请"....>
-        $PARSE_API_TR && ! $PARSE_A && { #if <a> is already parsed, then other <a> contains no api
-            eval local $ATTRIBUTES
+        # <a href="api_path" title="...">api</a>, <a href="..." title="高级接口申请"....>
+        $PARSE_API_TR && ! $PARSE_A && ! $IN_TH && { #if <a> is already parsed, then other <a> contains no api
             PARSE_A=true
-            API_URL_PATH="$href"
+            eval local $ATTRIBUTES
+            CONTENT=`echo "$CONTENT"` #remove eol \n \r
+            API_URL_PATH="$CONTENT"
             echo "/* $API_URL_PATH */"
         }
     elif [ "$TAG_NAME" = "tr" ]; then
@@ -137,11 +141,15 @@ parse_api_list_page_dom() {
     elif [ "$TAG_NAME" = "/tr" ]; then #finish 1 api
         $PARSE_A && {
             echo "$BEGIN_COMMENT $API_DESC"
-            $api_url_handler "$API_URL_BASE$API_URL_PATH/en"
+            $api_url_handler "$API_URL_BASE/wiki/$API_URL_PATH/en"
         }
         PARSE_A=false
         PARSE_API_TR=false
         API_URL_PATH=
+    elif [ "$TAG_NAME" = "th" ]; then
+        IN_TH=true
+    elif [ "$TAG_NAME" = "/th" ]; then
+        IN_TH=false
     fi
 }
 
@@ -170,12 +178,12 @@ parse_api_list_page() {
 #echo >$OUT_FILE
 
 if [ $# -gt 0 ]; then
-        if [ "$1" = "-make" ]; then
+    if [ "$1" = "-make" ]; then
         mkdir -p api
         rm $API_MK $API_RULE_MK
         parse_api_list_page $API_LIST_URL parse_api_list_page_dom save_api_in_Makefile
         cat $API_MK  Makefile.in  $API_RULE_MK >Makefile
-        time make -j4
+        (time make -j4)
     else
         parse_api_page $1
     fi
