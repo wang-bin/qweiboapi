@@ -1,8 +1,26 @@
+
+
+TARGET = weiboapi.h
+LINK=cat
+OBJDIR=api
+OBJS=$(addprefix $(OBJDIR)/, $(addsuffix .h, $(API_ALL)))
+
 #-include(api.mk)
-#-include(api_rule.mk)
 
-all: $(API_ALL)
+all: $(TARGET)
 
+$(TARGET): $(OBJDIR) $(API_ALL)
+	$(LINK) $(OBJS) > $@
+
+$(OBJDIR):
+	mkdir -p $@
 
 clean:
 	rm -rf api *.mk
+
+distclean: clean
+	rm -rf $(TARGET)
+
+.PHONY: all clean $(API_ALL)
+
+#-include(api_rule.mk)

@@ -15,7 +15,7 @@ fi
 #Makefile support(multiple jobs)
 #functional style
 #./web2api.sh && make
-# <a title="xxx"> replace spaces in title to _?
+# how to add the descriptions at the beginning of api?
 
 API_HOST="https://api.weibo.com" #json request url
 API_URL_BASE="http://open.weibo.com"
@@ -114,8 +114,9 @@ save_api_in_Makefile() {
     [ ! -f $API_MK ] && echo -n "API_ALL =" >$API_MK
     echo -n " $api" >>$API_MK
     cat >>$API_RULE_MK<<EOF
-${api}:
-	$SCRIPT_FILE "$url" > api/${api}.h
+${api}: \$(OBJDIR)/${api}.h
+\$(OBJDIR)/${api}.h:
+	$SCRIPT_FILE "$url" > \$@
 
 EOF
 }
@@ -128,11 +129,11 @@ parse_api_list_page_dom() {
         [ -n "$API_URL_PATH" ] && API_DESC="$CONTENT"
     elif [ "$TAG_NAME" = "a" ]; then
         # <a href="api_path" title="...">api</a>, <a href="..." title="高级接口申请"....>
+        # api: replace spaces in title with tabs. full url= $API_URL_BASE/wiki/$api. api may starts with '2'
         $PARSE_API_TR && ! $PARSE_A && ! $IN_TH && { #if <a> is already parsed, then other <a> contains no api
             PARSE_A=true
             eval local $ATTRIBUTES
-            CONTENT=`echo "$CONTENT"` #remove eol \n \r
-            API_URL_PATH="$CONTENT"
+            API_URL_PATH=${title// /_}
             echo "/* $API_URL_PATH */"
         }
     elif [ "$TAG_NAME" = "tr" ]; then
@@ -176,13 +177,14 @@ parse_api_list_page() {
 
 #echo >$OUT_FILE
 
+echo $#
 if [ $# -gt 0 ]; then
     if [ "$1" = "-make" ]; then
-        mkdir -p api
-        rm $API_MK $API_RULE_MK
+        rm -rf $API_MK $API_RULE_MK
         parse_api_list_page $API_LIST_URL parse_api_list_page_dom save_api_in_Makefile
         cat $API_MK  Makefile.in  $API_RULE_MK >Makefile
-        (time make -j4)
+        #time make -j4
+        echo "Makefile created. run 'make' to create api file"
     else
         parse_api_page $1
     fi
