@@ -41,7 +41,7 @@ parse_api_dom() {
 			elif [ $COL -eq 3 ]; then #comment. parse default value
 				COMMENT="$CONTENT"
 				#\u9ED8\u8BA4\u4E3A\u3002
-				#VALUE=`echo "$COMMENT" |sed 's/.*Ä¬ÈÏÎª\(.*\)¡£.*/\1/'` #TODO: English page
+				#VALUE=`echo "$COMMENT" |sed 's/.*é»˜è®¤ä¸º\(.*\)ã€‚.*/\1/'` #TODO: English page
 				#VALUE=`echo "$COMMENT" |sed 's/.*\x9E\xD8\x8B\xA4\x4E\x3A\(.*\)\x30\x02.*/\1/'` #TODO: English page
 				VALUE=${COMMENT##*Default is } #`echo "$COMMENT" |sed 's/.*Default is\(.*\)\..*/\1/'` # English page
 				[ "$VALUE" = "$COMMENT" ] && VALUE=${COMMENT##*default value is} #`echo "$COMMENT" |sed 's/.*default value is\(.*\)\..*/\1/'`
@@ -125,7 +125,7 @@ parse_api_list_page_dom() {
 		CONTENT=`echo "$CONTENT"` #remove eol \n \r
 		[ -n "$API_URL_PATH" ] && API_DESC="$CONTENT"
 	elif [ "$TAG_NAME" = "a" ]; then
-		# <a href="api_path" title="..."></a>, <a href="..." title="¸ß¼¶½Ó¿ÚÉêÇë"....>
+		# <a href="api_path" title="..."></a>, <a href="..." title="é«˜çº§æŽ¥å£ç”³è¯·"....>
 		$PARSE_API_TR && ! $PARSE_A && { #if <a> is already parsed, then other <a> contains no api
 			eval local $ATTRIBUTES
 			PARSE_A=true
@@ -167,14 +167,15 @@ parse_api_list_page() {
 	done
 }
 
-echo >$OUT_FILE
+#echo >$OUT_FILE
 
 if [ $# -gt 0 ]; then
-	if [ "$1" = "-makefile" ]; then
+        if [ "$1" = "-make" ]; then
 		mkdir -p api
 		rm $API_MK $API_RULE_MK
 		parse_api_list_page $API_LIST_URL parse_api_list_page_dom save_api_in_Makefile
-		cat $API_MK $API_RULE_MK Makefile.in >Makefile
+		cat $API_MK  Makefile.in  $API_RULE_MK >Makefile
+		time make -j4
 	else
 		parse_api_page $1
 	fi
