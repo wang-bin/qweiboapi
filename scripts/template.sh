@@ -3,7 +3,7 @@ OUT_FILE=weiboapi.h  #cat >> &1 is wrong, why?
 begin_api() {
 	[ $# -eq 0 ] && return 1
 	API=$1
-	cat <<EOF
+	:<<EOF
 class Q_EXPORT ${API} : public Request
 {
 public:
@@ -12,15 +12,17 @@ protected:
     void initParameters() {
         (*this)
 EOF
+echo "REQUEST_API_BEGIN($API)"
 }
 
 end_api() {
-	cat <<EOF
+	:<<EOF
         ;
     }
 };
 
 EOF
+echo "REQUEST_API_END()"
 }
 
 BEGIN_PARAMETER="        (\""
