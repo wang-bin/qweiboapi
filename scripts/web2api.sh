@@ -5,7 +5,6 @@ then
 else
     SCRIPT_DIR=.
 fi
-echo $SCRIPT_DIR
 . ${SCRIPT_DIR}/template.sh
 . ${SCRIPT_DIR}/functions.sh
 
@@ -116,7 +115,7 @@ save_api_in_Makefile() {
     echo -n " $api" >>$API_MK
     cat >>$API_RULE_MK<<EOF
 ${api}:
-    $SCRIPT_FILE "$url" > api/${api}.h
+	$SCRIPT_FILE "$url" > api/${api}.h
 
 EOF
 }
