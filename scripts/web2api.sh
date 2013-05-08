@@ -116,7 +116,7 @@ save_api_in_Makefile() {
     echo -n " $api" >>$API_MK
     cat >>$API_RULE_MK<<EOF
 ${api}: \$(OBJDIR)/${api}.h
-\$(OBJDIR)/${api}.h:
+\$(OBJDIR)/${api}.h: \$(OBJDIR)
 	@echo "$comment" > \$@
 	$SCRIPT_FILE "$url" >> \$@
 
