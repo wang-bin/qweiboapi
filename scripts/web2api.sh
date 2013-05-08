@@ -83,8 +83,8 @@ api_url_2_name() {
     api=${api##*/[0-9]/}
     api=${api##*wiki/}
     api=${api%/en} #English version api page
-    api=${api//\//_}
-    echo "$api"
+    #api=${api//\//_}
+    echo "${api//\//_}"
 }
 
 parse_api_page() {
