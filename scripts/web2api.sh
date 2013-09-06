@@ -1,3 +1,5 @@
+#!/bin/bash
+
 if [ "$0" = "$BASH_SOURCE" -o -z "$BASH_SOURCE" ]; #??
 then
     SCRIPT_FILE=$0
@@ -143,7 +145,7 @@ parse_api_list_page_dom() {
     elif [ "$TAG_NAME" = "/tr" ]; then #finish 1 api
         $PARSE_A && {
             #echo "$BEGIN_COMMENT $API_DESC $END_COMMENT"
-            $api_url_handler "$API_URL_BASE/wiki/$API_URL_PATH/en" "$BEGIN_COMMENT $API_URL_PATH: $API_DESC $END_COMMENT"
+            $api_url_handler "$API_URL_BASE/wiki/$API_URL_PATH" "$BEGIN_COMMENT $API_URL_PATH: $API_DESC $END_COMMENT"
         }
         PARSE_A=false
         PARSE_API_TR=false
