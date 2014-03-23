@@ -7,7 +7,15 @@ It was first used in my anothor project [PhotoKit](https://github.com/wang-bin/P
 
 自带了一个登录并获取微博的例子，examples/login
 
+编译
+
+    qmake
+    make
+
+
 ## Generate Weibo API From Web
+
+还在为查找weibo的api烦恼吗？我写了个bash脚本来结束你的噩梦。脚本可以分析weibo api网站生成一个接口文件。虽然还不是很完美，至少方便了很多。
 
 There is a **bash** script `web2api.sh` to generate api from sina's website. Currently the output format is the same as that used in QWeiboAPI/src/requestparameter.h. Custom output will be added(e.g. for other languages)
 
@@ -71,4 +79,6 @@ Copy the result you want in weiboapi.h to src/requestparameter.h.
 - 自定义生成接口输出模板，以方便给其他语言使用
 
 注：我未申请appkey，可以在src/requrestparamster.h中修改sAppKey，sAppSecret
+
+欢迎大家来完善。
 
