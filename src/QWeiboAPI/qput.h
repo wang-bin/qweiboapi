@@ -45,7 +45,7 @@ public:
 
 signals:
     void fail(const QString& error);
-    void ok(const QByteArray& replyData);
+    void ok(const QString& replyData);
 public slots:
     void abort();
 private slots:

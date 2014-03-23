@@ -48,15 +48,15 @@ signals:
     void loginOk();
     void loginFail();
     void sendOk();
-    void ok(const QByteArray& replyData);
+    void ok(const QString& replyData);
 
 public slots:
 
 private slots:
     void processNextRequest(); //process 1 request
-    void parseOAuth2ReplyData(const QByteArray& data);
+    void parseOAuth2ReplyData(const QString& data);
     void sendStatusWithPicture();
-    void dumpOk(const QByteArray& data);
+    void dumpOk(const QString& data);
     void dumpError(const QString& error);
 private:
     QPut *mPut;

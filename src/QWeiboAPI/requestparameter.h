@@ -59,6 +59,8 @@ protected:
     QMap<QString, QVariant> mParameters;
 };
 
+//TODO: post and get use different macro
+
 #define REQUEST_API_BEGIN(Class, APIPATH) \
     class QWEIBOAPI_EXPORT Class : public Request \
     { \

@@ -36,11 +36,11 @@ Weibo::Weibo(QObject *parent)
     :QObject(parent)
 {
     mPut = new QPut(this);
-    //connect(mPut, SIGNAL(ok(QByteArray)), this, SIGNAL(ok()));
+    //connect(mPut, SIGNAL(ok(QString)), this, SIGNAL(ok()));
     connect(mPut, SIGNAL(fail(QString)), this, SIGNAL(error(QString)));
     connect(mPut, SIGNAL(fail(QString)), this, SLOT(dumpError(QString)));
-    connect(mPut, SIGNAL(ok(QByteArray)), this, SIGNAL(ok(QByteArray)));
-    connect(mPut, SIGNAL(ok(QByteArray)), this, SLOT(dumpOk(QByteArray)));
+    connect(mPut, SIGNAL(ok(QString)), this, SIGNAL(ok(QString)));
+    connect(mPut, SIGNAL(ok(QString)), this, SLOT(dumpOk(QString)));
     connect(this, SIGNAL(loginOk()), SLOT(processNextRequest()), Qt::DirectConnection);
 }
 
@@ -107,7 +107,7 @@ void Weibo::login()
     url.addQueryItem("username", mUser);
     url.addQueryItem("password", mPasswd);
 #endif //QT_VERSION_CHECK(5, 0, 0)
-    connect(mPut, SIGNAL(ok(QByteArray)), SLOT(parseOAuth2ReplyData(QByteArray)));
+    connect(mPut, SIGNAL(ok(QString)), SLOT(parseOAuth2ReplyData(QString)));
     connect(mPut, SIGNAL(fail(QString)), SIGNAL(loginFail()));
     mPut->setUrl(url);
     qDebug("begin login...");
@@ -150,14 +150,14 @@ void Weibo::processNextRequest()
     }
 }
 
-void Weibo::parseOAuth2ReplyData(const QByteArray &data)
+void Weibo::parseOAuth2ReplyData(const QString &data)
 {
     static bool in = false;
     if (in)
         return;
     in = true;
     //{"access_token":"2.00xxxxD","remind_in":"4652955","expires_in":4652955,"uid":"12344"}
-    QByteArray d(data);
+    QByteArray d(data.toUtf8());
     int i = d.indexOf("access_token");
     int p0 = d.indexOf(":", i) + 2;
     int p1 = d.indexOf("\"", p0);
@@ -168,7 +168,7 @@ void Weibo::parseOAuth2ReplyData(const QByteArray &data)
     mUid = d.mid(p0, p1 - p0);
     qDebug("token=%s, uid=%s", mAccessToken.constData(), mUid.constData());
 
-    disconnect(this, SLOT(parseOAuth2ReplyData(QByteArray)));
+    disconnect(this, SLOT(parseOAuth2ReplyData(QString)));
     disconnect(this, SIGNAL(loginFail()));
     emit loginOk();
 }
@@ -197,7 +197,7 @@ void Weibo::sendStatusWithPicture()
     QByteArray data = f.readAll();
     f.close();
 
-    connect(mPut, SIGNAL(ok(QByteArray)), this, SIGNAL(sendOk()));
+    connect(mPut, SIGNAL(ok(QString)), this, SIGNAL(sendOk()));
 
     mPut->reset();
     QUrl url(kApiHost + "statuses/upload.json");
@@ -213,9 +213,9 @@ void Weibo::dumpError(const QString &error)
     qDebug() << ">>>>>>>" << __FUNCTION__ << error  << "<<<<<<<";
 }
 
-void Weibo::dumpOk(const QByteArray &data)
+void Weibo::dumpOk(const QString &data)
 {
-    qDebug() << ">>>>>>>" << __FUNCTION__ << QString::fromUtf8(data.constData()) << "<<<<<<<";
+    qDebug() << ">>>>>>>" << __FUNCTION__ << data << "<<<<<<<";
 }
 
 } //namespace QWeiboAPI

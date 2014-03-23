@@ -152,7 +152,8 @@ void QPut::DoFinished()
     mSuccess = (error == QNetworkReply::NoError);
     qDebug() << "Ok: " << mSuccess;// << "+++reply: " << QString::fromUtf8(res.constData());
     if (mSuccess) {
-        emit ok(res);
+        // in utf8. http://open.weibo.com/wiki/%E6%8E%A5%E5%8F%A3%E9%97%AE%E9%A2%98
+        emit ok(QString::fromUtf8(res.constData()));
     } else {
         //emit fail(reply->errorString()); //emit in DoReplyError()
     }
