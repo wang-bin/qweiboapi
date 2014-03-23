@@ -31,7 +31,7 @@ static const QString kApiHost = "https://api.weibo.com/2/";
 static QString sAppKey = "82966982";
 static QString sAppSecret = "72d4545a28a46a6f329c4f2b1e949e6a";
 
-class Q_EXPORT Request
+class QWEIBOAPI_EXPORT Request
 {
 public:
     enum RequestType {
@@ -59,7 +59,7 @@ protected:
 };
 
 #define REQUEST_API_BEGIN(Class) \
-    class Q_EXPORT Class : public Request \
+    class QWEIBOAPI_EXPORT Class : public Request \
     { \
     public: \
         Class(); \

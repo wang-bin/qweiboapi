@@ -27,21 +27,21 @@
 #include <dptr.h>
 
 #if defined(Q_DLL_LIBRARY)
-#  undef Q_EXPORT
-#  define Q_EXPORT Q_DECL_EXPORT
+#  undef QWEIBOAPI_EXPORT
+#  define QWEIBOAPI_EXPORT Q_DECL_EXPORT
 #else
-#  undef Q_EXPORT
-#  define Q_EXPORT //Q_DECL_IMPORT //only for vc?
+#  undef QWEIBOAPI_EXPORT
+#  define QWEIBOAPI_EXPORT //Q_DECL_IMPORT //only for vc?
 #endif
 
 /* runtime version. used to compare with compile time version */
-Q_EXPORT unsigned QWeiboAPI_Version();
-Q_EXPORT QString QWeiboAPI_Version_String();
-Q_EXPORT QString QWeiboAPI_Version_String_Long();
+QWEIBOAPI_EXPORT unsigned QWeiboAPI_Version();
+QWEIBOAPI_EXPORT QString QWeiboAPI_Version_String();
+QWEIBOAPI_EXPORT QString QWeiboAPI_Version_String_Long();
 
 namespace QWeiboAPI {
-Q_EXPORT QString aboutQWeiboAPI();
-Q_EXPORT QString aboutQWeiboAPI_HTML();
+QWEIBOAPI_EXPORT QString aboutQWeiboAPI();
+QWEIBOAPI_EXPORT QString aboutQWeiboAPI_HTML();
 }
 //TODO: always inline
 

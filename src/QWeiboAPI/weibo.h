@@ -26,7 +26,7 @@
 class QPut;
 namespace QWeiboAPI {
 class Request;
-class Q_EXPORT Weibo : public QObject
+class QWEIBOAPI_EXPORT Weibo : public QObject
 {
     Q_OBJECT
 public:
