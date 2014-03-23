@@ -26,7 +26,7 @@
 namespace QWeiboAPI {
 
 static const QString kOAuthUrl = "https://api.weibo.com/oauth2/access_token";
-static const QString kApiHost = "https://api.weibo.com/2/";
+static const QString kApiHost = "https://api.weibo.com/";
 //appkey, appsecret are weico for iOS
 static QString sAppKey = "82966982";
 static QString sAppSecret = "72d4545a28a46a6f329c4f2b1e949e6a";
@@ -55,10 +55,26 @@ protected:
     bool mEditable; //true in ctor
     RequestType mType;
     QString mApiUrl;
+    QString mApiPath;
     QMap<QString, QVariant> mParameters;
 };
 
-#define REQUEST_API_BEGIN(Class) \
+#define REQUEST_API_BEGIN(Class, APIPATH) \
+    class QWEIBOAPI_EXPORT Class : public Request \
+    { \
+    public: \
+        Class() {} \
+    protected: \
+        void initParameters() { \
+            mApiPath = APIPATH; \
+            (*this)
+
+#define REQUEST_API_END() \
+    ; \
+  } \
+};
+
+#define REQUEST_API_BEGIN0(Class) \
     class QWEIBOAPI_EXPORT Class : public Request \
     { \
     public: \
@@ -67,13 +83,8 @@ protected:
         void initParameters() { \
             (*this)
 
-#define REQUEST_API_END() \
-    ; \
-  } \
-};
 
-
-REQUEST_API_BEGIN(LoginRequest)
+REQUEST_API_BEGIN0(LoginRequest)
         ("client_id", "sAppKey")
         ("client_secret", "sAppSecret")
         ("grant_type", "password")
@@ -82,14 +93,14 @@ REQUEST_API_BEGIN(LoginRequest)
 REQUEST_API_END()
 
 //返回最新的200条公共微博，返回结果非完全实时
-REQUEST_API_BEGIN(PublicTimelineRequest)
+REQUEST_API_BEGIN(PublicTimelineRequest, "2/statuses/public_timeline")
         ("source", "")// 	false 	string 	采用OAuth授权方式不需要此参数，其他授权方式为必填参数，数值为应用的AppKey。
         ("access_token", "")// 	false 	string 	采用OAuth授权方式为必填参数，其他授权方式不需要此参数，OAuth授权后获得。
         ("count", 20)// 	false 	int 	单页返回的记录条数，最大不超过200，默认为20。
 REQUEST_API_END()
 
 //获取当前登录用户及其所关注用户的最新微博
-REQUEST_API_BEGIN(HomeTimelineRequest)
+REQUEST_API_BEGIN(HomeTimelineRequest, "2/statuses/home_timeline")
         ("source", "") //false 	string 	采用OAuth授权方式不需要此参数，其他授权方式为必填参数，数值为应用的AppKey。
         ("access_token", "")// 	false 	string 	采用OAuth授权方式为必填参数，其他授权方式不需要此参数，OAuth授权后获得。
         ("since_id", 0)// 	false 	int64 	若指定此参数，则返回ID比since_id大的微博（即比since_id时间晚的微博），默认为0。
@@ -104,7 +115,7 @@ REQUEST_API_END()
 typedef HomeTimelineRequest FriendsTimelineRequest;
 
 //获取用户发布的微博
-REQUEST_API_BEGIN(UserTimelineRequest)
+REQUEST_API_BEGIN(UserTimelineRequest, "2/statuses/user_timeline")
         ("source", "") //false 	string 	采用OAuth授权方式不需要此参数，其他授权方式为必填参数，数值为应用的AppKey。
         ("access_token", "")// 	false 	string 	采用OAuth授权方式为必填参数，其他授权方式不需要此参数，OAuth授权后获得。
         ("uid", -1)//false 	int64 	需要查询的用户ID.
@@ -119,7 +130,7 @@ REQUEST_API_BEGIN(UserTimelineRequest)
 REQUEST_API_END()
 
 //获取用户发布的微博的ID
-REQUEST_API_BEGIN(UserTimelineIdsRequest)
+REQUEST_API_BEGIN(UserTimelineIdsRequest, "2/statuses/user_timeline/ids")
         ("source", "") //false 	string 	采用OAuth授权方式不需要此参数，其他授权方式为必填参数，数值为应用的AppKey。
         ("access_token", "")// 	false 	string 	采用OAuth授权方式为必填参数，其他授权方式不需要此参数，OAuth授权后获得。
         ("uid", -1)//false 	int64 	需要查询的用户ID.

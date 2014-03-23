@@ -33,7 +33,6 @@ namespace QWeiboAPI {
 Request::Request():
     mEditable(false)
   , mType(Get)
-  , mApiUrl(kApiHost)
 {
 }
 
@@ -44,7 +43,9 @@ Request::RequestType Request::type() const
 
 QString Request::apiUrl() const
 {
-    return mApiUrl;
+    if (!mApiUrl.isEmpty())
+        return mApiUrl;
+    return kApiHost + mApiPath + ".json";
 }
 
 QUrl Request::url() const
@@ -107,30 +108,5 @@ LoginRequest::LoginRequest():
     mType = Post;
     mApiUrl = kOAuthUrl;
 }
-
-PublicTimelineRequest::PublicTimelineRequest():
-    Request()
-{
-    mApiUrl = kApiHost + "statuses/public_timeline.json";
-}
-
-HomeTimelineRequest::HomeTimelineRequest():
-    Request()
-{
-    mApiUrl = kApiHost + "statuses/home_timeline.json";
-}
-
-UserTimelineRequest::UserTimelineRequest():
-    Request()
-{
-    mApiUrl = kApiHost + "statuses/user_timeline.json";
-}
-
-UserTimelineIdsRequest::UserTimelineIdsRequest():
-    Request()
-{
-    mApiUrl = kApiHost + "statuses/user_timeline/ids.json";
-}
-
 
 } //namespace QWeiboAPI
