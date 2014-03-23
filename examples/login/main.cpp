@@ -34,7 +34,6 @@ int main(int argc, char** argv)
     Weibo weibo;
     QObject::connect(&weibo, SIGNAL(ok(QString)), txt, SLOT(append(QString)));
     QObject::connect(&weibo, SIGNAL(loginFail()), &failbox, SLOT(exec()));
-    QObject::connect(&weibo, SIGNAL(loginFail()), &failbox, SLOT(exec()));
     weibo.setUSer(user);
     weibo.setPassword(passwd);
     //weibo.login();
