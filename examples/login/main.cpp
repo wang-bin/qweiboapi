@@ -3,6 +3,7 @@
 #include <QInputDialog>
 #include <QApplication>
 #include <QMessageBox>
+#include <QTextEdit>
 
 using namespace QWeiboAPI;
 
@@ -26,10 +27,13 @@ int main(int argc, char** argv)
     okbox.setText("Ok");
     failbox.setWindowTitle("QWeiboAPI Login");
     failbox.setText("Failed");
-
+    QTextEdit *txt = new QTextEdit();
+    txt->show();
+    txt->setWindowTitle("Sina weibo api result");
 
     Weibo weibo;
-    QObject::connect(&weibo, SIGNAL(loginOk()), &okbox, SLOT(exec()));
+    QObject::connect(&weibo, SIGNAL(ok(QString)), txt, SLOT(append(QString)));
+    QObject::connect(&weibo, SIGNAL(loginFail()), &failbox, SLOT(exec()));
     QObject::connect(&weibo, SIGNAL(loginFail()), &failbox, SLOT(exec()));
     weibo.setUSer(user);
     weibo.setPassword(passwd);
