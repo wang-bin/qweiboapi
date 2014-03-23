@@ -78,6 +78,14 @@ parse_api_dom() {
     fi
 }
 
+api_url_get_path() {
+    [ $# -lt 1 ] && cecho green "$0 weibo_api_url" && return 1
+    local api=${1#*$API_URL_BASE}
+    api=${api##*wiki/}
+    api=${api%/en} #English version api page
+    #api=${api//\//_}
+    echo "${api}"
+}
 
 api_url_2_name() {
     [ $# -lt 1 ] && cecho green "$0 weibo_api_url" && return 1
@@ -94,9 +102,10 @@ parse_api_page() {
     local API_URL=$1
     local dom_parser=parse_api_dom
     local api="`api_url_2_name $API_URL`"
+    local api_path="`api_url_get_path $API_URL`"
     [ "$api" = "" -o "$api" = "en" ] && return 0 #why it happens?
     [ $# -gt 1 ] && echo "$2"
-    begin_api $api
+    begin_api $api $api_path
     API_TABLE=true
     [ $# -gt 2 ] && dom_parser=$3
     $DOWNLOAD $API_URL | while read_dom; do
