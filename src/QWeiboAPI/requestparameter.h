@@ -92,54 +92,67 @@ REQUEST_API_BEGIN0(LoginRequest)
         ("password", "mPasswd")
 REQUEST_API_END()
 
-//返回最新的200条公共微博，返回结果非完全实时
-REQUEST_API_BEGIN(PublicTimelineRequest, "2/statuses/public_timeline")
-        ("source", "")// 	false 	string 	采用OAuth授权方式不需要此参数，其他授权方式为必填参数，数值为应用的AppKey。
-        ("access_token", "")// 	false 	string 	采用OAuth授权方式为必填参数，其他授权方式不需要此参数，OAuth授权后获得。
-        ("count", 20)// 	false 	int 	单页返回的记录条数，最大不超过200，默认为20。
+// 2/statuses/public_timeline: 获取最新的公共微博 
+REQUEST_API_BEGIN(statuses_public_timeline, "2/statuses/public_timeline")
+        ("source", "")  //采用OAuth授权方式不需要此参数，其他授权方式为必填参数，数值为应用的AppKey。
+        ("access_token", "")  //采用OAuth授权方式为必填参数，其他授权方式不需要此参数，OAuth授权后获得。
+        ("count", 20)  //单页返回的记录条数，最大不超过200，默认为20。
 REQUEST_API_END()
 
-//获取当前登录用户及其所关注用户的最新微博
-REQUEST_API_BEGIN(HomeTimelineRequest, "2/statuses/home_timeline")
-        ("source", "") //false 	string 	采用OAuth授权方式不需要此参数，其他授权方式为必填参数，数值为应用的AppKey。
-        ("access_token", "")// 	false 	string 	采用OAuth授权方式为必填参数，其他授权方式不需要此参数，OAuth授权后获得。
-        ("since_id", 0)// 	false 	int64 	若指定此参数，则返回ID比since_id大的微博（即比since_id时间晚的微博），默认为0。
-        ("max_id", 0)// 	false 	int64 	若指定此参数，则返回ID小于或等于max_id的微博，默认为0。
-        ("count", 20)// 	false 	int 	单页返回的记录条数，最大不超过100，默认为20。
-        ("page", 1)// 	false 	int 	返回结果的页码，默认为1。
-        ("base_app", 0)// 	false 	int 	是否只获取当前应用的数据。0为否（所有数据），1为是（仅当前应用），默认为0。
-        ("feature", 0)// 	false 	int 	过滤类型ID，0：全部、1：原创、2：图片、3：视频、4：音乐，默认为0。
-        ("trim_user", 0)//	false 	int 	返回值中user字段开关，0：返回完整user字段、1：user字段仅返回user_id，默认为0。
+// 2/statuses/home_timeline: 获取当前登录用户及其所关注用户的最新微博 
+REQUEST_API_BEGIN(statuses_home_timeline, "2/statuses/home_timeline")
+        ("source", "")  //采用OAuth授权方式不需要此参数，其他授权方式为必填参数，数值为应用的AppKey。
+        ("access_token", "")  //采用OAuth授权方式为必填参数，其他授权方式不需要此参数，OAuth授权后获得。
+        ("since_id", 0)  //若指定此参数，则返回ID比since_id大的微博（即比since_id时间晚的微博），默认为0。
+        ("max_id", 0)  //若指定此参数，则返回ID小于或等于max_id的微博，默认为0。
+        ("count", 20)  //单页返回的记录条数，最大不超过100，默认为20。
+        ("page", 1)  //返回结果的页码，默认为1。
+        ("base_app", 0)  //是否只获取当前应用的数据。0为否（所有数据），1为是（仅当前应用），默认为0。
+        ("feature", 0)  //过滤类型ID，0：全部、1：原创、2：图片、3：视频、4：音乐，默认为0。
+        ("trim_user", 0)  //返回值中user字段开关，0：返回完整user字段、1：user字段仅返回user_id，默认为0。
 REQUEST_API_END()
 
-typedef HomeTimelineRequest FriendsTimelineRequest;
-
-//获取用户发布的微博
-REQUEST_API_BEGIN(UserTimelineRequest, "2/statuses/user_timeline")
-        ("source", "") //false 	string 	采用OAuth授权方式不需要此参数，其他授权方式为必填参数，数值为应用的AppKey。
-        ("access_token", "")// 	false 	string 	采用OAuth授权方式为必填参数，其他授权方式不需要此参数，OAuth授权后获得。
-        ("uid", -1)//false 	int64 	需要查询的用户ID.
-        ("screen_name", "")// 	false 	string 	需要查询的用户昵称。 )
-        ("since_id", 0)// 	false 	int64 	若指定此参数，则返回ID比since_id大的微博（即比since_id时间晚的微博），默认为0。
-        ("max_id", 0)// 	false 	int64 	若指定此参数，则返回ID小于或等于max_id的微博，默认为0。
-        ("count", 20)// 	false 	int 	单页返回的记录条数，最大不超过100，默认为20。
-        ("page", 1)// 	false 	int 	返回结果的页码，默认为1。
-        ("base_app", 0)// 	false 	int 	是否只获取当前应用的数据。0为否（所有数据），1为是（仅当前应用），默认为0。
-        ("feature", 0)// 	false 	int 	过滤类型ID，0：全部、1：原创、2：图片、3：视频、4：音乐，默认为0。
-        ("trim_user", 0)//	false 	int 	返回值中user字段开关，0：返回完整user字段、1：user字段仅返回user_id，默认为0。
+typedef statuses_home_timeline FriendsTimelineRequest;
+// 2/statuses/friends_timeline: 获取当前登录用户及其所关注用户的最新微博 
+REQUEST_API_BEGIN(statuses_friends_timeline, "2/statuses/friends_timeline")
+        ("source", "")  //采用OAuth授权方式不需要此参数，其他授权方式为必填参数，数值为应用的AppKey。
+        ("access_token", "")  //采用OAuth授权方式为必填参数，其他授权方式不需要此参数，OAuth授权后获得。
+        ("since_id", 0)  //若指定此参数，则返回ID比since_id大的微博（即比since_id时间晚的微博），默认为0。
+        ("max_id", 0)  //若指定此参数，则返回ID小于或等于max_id的微博，默认为0。
+        ("count", 20)  //单页返回的记录条数，最大不超过100，默认为20。
+        ("page", 1)  //返回结果的页码，默认为1。
+        ("base_app", 0)  //是否只获取当前应用的数据。0为否（所有数据），1为是（仅当前应用），默认为0。
+        ("feature", 0)  //过滤类型ID，0：全部、1：原创、2：图片、3：视频、4：音乐，默认为0。
+        ("trim_user", 0)  //返回值中user字段开关，0：返回完整user字段、1：user字段仅返回user_id，默认为0。
 REQUEST_API_END()
 
-//获取用户发布的微博的ID
-REQUEST_API_BEGIN(UserTimelineIdsRequest, "2/statuses/user_timeline/ids")
-        ("source", "") //false 	string 	采用OAuth授权方式不需要此参数，其他授权方式为必填参数，数值为应用的AppKey。
-        ("access_token", "")// 	false 	string 	采用OAuth授权方式为必填参数，其他授权方式不需要此参数，OAuth授权后获得。
-        ("uid", -1)//false 	int64 	需要查询的用户ID.
-        ("screen_name", "")// 	false 	string 	需要查询的用户昵称。 )
-        ("since_id", 0)// 	false 	int64 	若指定此参数，则返回ID比since_id大的微博（即比since_id时间晚的微博），默认为0。
-        ("max_id", 0)// 	false 	int64 	若指定此参数，则返回ID小于或等于max_id的微博，默认为0。
-        ("count", 20)// 	false 	int 	单页返回的记录条数，最大不超过100，默认为20。
-        ("page", 1)// 	false 	int 	返回结果的页码，默认为1。
-        ("base_app", 0)// 	false 	int 	是否只获取当前应用的数据。0为否（所有数据），1为是（仅当前应用），默认为0。
+// 2/statuses/user_timeline: 获取用户发布的微博 
+REQUEST_API_BEGIN(statuses_user_timeline, "2/statuses/user_timeline")
+        ("source", "")  //采用OAuth授权方式不需要此参数，其他授权方式为必填参数，数值为应用的AppKey。
+        ("access_token", "")  //采用OAuth授权方式为必填参数，其他授权方式不需要此参数，OAuth授权后获得。
+        ("uid", 0)  //需要查询的用户ID。
+        ("screen_name", "")  //需要查询的用户昵称。
+        ("since_id", 0)  //若指定此参数，则返回ID比since_id大的微博（即比since_id时间晚的微博），默认为0。
+        ("max_id", 0)  //若指定此参数，则返回ID小于或等于max_id的微博，默认为0。
+        ("count", 20)  //单页返回的记录条数，最大不超过100，超过100以100处理，默认为20。
+        ("page", 1)  //返回结果的页码，默认为1。
+        ("base_app", 0)  //是否只获取当前应用的数据。0为否（所有数据），1为是（仅当前应用），默认为0。
+        ("feature", 0)  //过滤类型ID，0：全部、1：原创、2：图片、3：视频、4：音乐，默认为0。
+        ("trim_user", 0)  //返回值中user字段开关，0：返回完整user字段、1：user字段仅返回user_id，默认为0。
+REQUEST_API_END()
+
+// 2/statuses/user_timeline/ids: 获取用户发布的微博的ID  
+REQUEST_API_BEGIN(statuses_user_timeline_ids, "2/statuses/user_timeline/ids")
+        ("source", "")  //采用OAuth授权方式不需要此参数，其他授权方式为必填参数，数值为应用的AppKey。
+        ("access_token", "")  //采用OAuth授权方式为必填参数，其他授权方式不需要此参数，OAuth授权后获得。
+        ("uid", 0)  //需要查询的用户ID。
+        ("screen_name", "")  //需要查询的用户昵称。
+        ("since_id", 0)  //若指定此参数，则返回ID比since_id大的微博（即比since_id时间晚的微博），默认为0。
+        ("max_id", 0)  //若指定此参数，则返回ID小于或等于max_id的微博，默认为0。
+        ("count", 20)  //单页返回的记录条数，最大不超过100，默认为20。
+        ("page", 1)  //返回结果的页码，默认为1。
+        ("base_app", 0)  //是否只获取当前应用的数据。0为否（所有数据），1为是（仅当前应用），默认为0。
+        ("feature", 0)  //过滤类型ID，0：全部、1：原创、2：图片、3：视频、4：音乐，默认为0。
 REQUEST_API_END()
 
 } //namespace QWeiboAPI

@@ -27,13 +27,14 @@ int main(int argc, char** argv)
     failbox.setWindowTitle("QWeiboAPI Login");
     failbox.setText("Failed");
 
+
     Weibo weibo;
     QObject::connect(&weibo, SIGNAL(loginOk()), &okbox, SLOT(exec()));
     QObject::connect(&weibo, SIGNAL(loginFail()), &failbox, SLOT(exec()));
     weibo.setUSer(user);
     weibo.setPassword(passwd);
     //weibo.login();
-    Request *request = new PublicTimelineRequest();
+    Request *request = new statuses_public_timeline();
     request->prepare();
     weibo.createRequest(request);
 
