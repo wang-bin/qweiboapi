@@ -1,6 +1,6 @@
 /******************************************************************************
     Weibo: login, logout and upload api
-    Copyright (C) 2012 Wang Bin <wbsecg1@gmail.com>
+    Copyright (C) 2012-2014 Wang Bin <wbsecg1@gmail.com>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

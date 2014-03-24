@@ -8,7 +8,7 @@ begin_api() {
 class QWEIBOAPI_EXPORT ${API} : public Request
 {
 public:
-    ${API}();
+    ${API}() {prepare();};
 protected:
     void initParameters() {
         (*this)

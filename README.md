@@ -66,13 +66,11 @@ Copy the result you want in weiboapi.h to src/requestparameter.h.
     weibo.setPassword(passwd);
     //weibo.login();
     Request *request = new statuses_public_timeline();
-    request->prepare();
     weibo.createRequest(request);
 
 #### ISSUES
 
 - 自动生成的接口参数默认值未做分析，现在数字默认为0，字符串为""。需要自己手动根据参数注释修改
-- POST 类型的接口没处理
 
 #### TODO
 

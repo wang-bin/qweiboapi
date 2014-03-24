@@ -1,6 +1,6 @@
 /******************************************************************************
     Weibo: login, logout and upload api
-    Copyright (C) 2012 Wang Bin <wbsecg1@gmail.com>
+    Copyright (C) 2012-2014 Wang Bin <wbsecg1@gmail.com>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -42,6 +42,11 @@ public:
     RequestType type() const;
     QString apiUrl() const;
     QUrl url() const; //apiUrl() + parameters
+    /*!
+     * \brief prepare
+     * \return
+     * initialize api parameters. usually you don't have to call it. do nothing if already called
+     */
     Request& prepare();
     //only the existing (name, value) will be modified, otherwise do nothing
     Request& operator ()(const QString& name, const QVariant& value);
@@ -65,7 +70,7 @@ protected:
     class QWEIBOAPI_EXPORT Class : public Request \
     { \
     public: \
-        Class() {} \
+        Class() {prepare();} \
     protected: \
         void initParameters() { \
             mApiPath = APIPATH; \

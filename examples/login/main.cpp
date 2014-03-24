@@ -38,7 +38,6 @@ int main(int argc, char** argv)
     weibo.setPassword(passwd);
     //weibo.login();
     Request *request = new statuses_public_timeline();
-    request->prepare();
     weibo.createRequest(request);
 
     return app.exec();
