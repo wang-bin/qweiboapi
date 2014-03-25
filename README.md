@@ -57,7 +57,9 @@ Copy the result you want in weiboapi.h to src/requestparameter.h.
             ("trim_user", 0)  //返回值中user字段开关，0：返回完整user字段、1：user字段仅返回user_id，默认为0。
     REQUEST_API_END()
 
-是获取最新微博的接口。然后你就可以这样使用(见examples/login)
+
+
+是获取最新微博的接口。把生成的api代码贴到src/requestparameter.h后面（那里我只贴了没几个，没有的话贴上去）然后你就可以这样使用(见examples/login)
 
     Weibo weibo;
     QObject::connect(&weibo, SIGNAL(ok(QString)), txt, SLOT(append(QString)));
